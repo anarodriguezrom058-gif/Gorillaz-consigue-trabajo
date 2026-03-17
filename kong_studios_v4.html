@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KONG STUDIOS — Proceso de Selección</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+
+:root {
+  --red: #cc1a00;
+  --dark: #0a0a0a;
+  --pixel-bg: #1a0a00;
+  --yellow: #f0c800;
+  --green: #20a040;
+  --blue: #2040c0;
+  --orange: #e07010;
+  --white: #f0f0f0;
+  --gray: #888;
+  --pixel-size: 4px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--red);
+  font-family: 'Press Start 2P', monospace;
+  min-height: 100vh;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* Pixel grid overlay */
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(0,0,0,.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,.08) 1px, transparent 1px);
+  background-size: 4px 4px;
+  pointer-events:none;
+  z-index:9999;
+}
+
+#app {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 12px;
+}
+
+/* ═══ TITLE BAR ═══ */
+.title-bar {
+  background: var(--dark);
+  border: 4px solid var(--white);
+  box-shadow: 4px 4px 0 #000;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.title-logo {
+  font-size: 14px;
+  color: var(--yellow);
+  letter-spacing: 2px;
+  line-height: 1.6;
+  text-shadow: 2px 2px 0 #000;
+}
+.title-logo span { color: var(--red); }
+.title-right {
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  color: #aaa;
+  text-align: right;
+  line-height: 1.6;
+}
+.live-dot {
+  color: var(--red);
+  font-size: 14px;
+}
+.live-dot::before { content:'▶ '; animation: blink 0.8s step-end infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ═══ PHASE BAR ═══ */
+.phase-bar {
+  display: flex;
+  gap: 0;
+  margin-bottom: 10px;
+  border: 3px solid var(--dark);
+  box-shadow: 3px 3px 0 #000;
+  overflow: hidden;
+}
+.ph {
+  flex: 1;
+  background: var(--dark);
+  color: #555;
+  padding: 6px 4px;
+  text-align: center;
+  border-right: 2px solid #333;
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  letter-spacing: 1px;
+  transition: all .1s;
+}
+.ph:last-child { border-right:none; }
+.ph .pnum { display:block; font-size:18px; color: inherit; }
+.ph.active { background: var(--yellow); color: var(--dark); }
+.ph.done { background: #003300; color: var(--green); }
+
+/* ═══ STATS ROW ═══ */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.stat-box {
+  background: var(--dark);
+  border: 3px solid var(--white);
+  box-shadow: 3px 3px 0 #000;
+  padding: 8px 10px;
+}
+.stat-box .slbl {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  color: #888;
+  display: block;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+}
+.stat-box .sval {
+  font-size: 20px;
+  color: var(--yellow);
+  display: block;
+  line-height: 1;
+  text-shadow: 2px 2px 0 #000;
+}
+.stat-box.danger .sval { color: var(--red); }
+.stat-box.good .sval { color: var(--green); }
+.stat-track { height: 4px; background: #333; margin-top: 5px; border: 1px solid #555; }
+.stat-fill { height:100%; background: var(--yellow); transition: width .4s steps(10); }
+.stat-box.danger .stat-fill { background: var(--red); }
+.stat-box.good .stat-fill { background: var(--green); }
+
+/* ═══ CLASSIFICATION ═══ */
+.cls-row {
+  background: var(--dark);
+  border: 3px solid var(--yellow);
+  box-shadow: 3px 3px 0 #000;
+  padding: 8px 14px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.cls-lbl { font-family:'VT323',monospace; font-size:13px; color:#666; display:block; }
+.cls-val { font-size: 11px; color: var(--yellow); letter-spacing:1px; text-shadow:2px 2px 0 #000; }
+.cls-tier {
+  font-size: 28px;
+  color: var(--dark);
+  background: var(--yellow);
+  padding: 2px 10px;
+  border: 2px solid #000;
+  box-shadow: 2px 2px 0 #000;
+  text-shadow: none;
+}
+.cls-right { font-family:'VT323',monospace; font-size:16px; color:#555; text-align:right; line-height:1.6; }
+
+/* ═══ MAIN LAYOUT ═══ */
+.main-grid {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+/* ═══ CHARACTER PANEL ═══ */
+.char-panel {
+  background: var(--dark);
+  border: 4px solid var(--white);
+  box-shadow: 4px 4px 0 #000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.char-name-bar {
+  background: var(--red);
+  padding: 6px 10px;
+  font-size: 10px;
+  color: var(--white);
+  letter-spacing: 2px;
+  text-align: center;
+  border-bottom: 3px solid var(--dark);
+  text-shadow: 1px 1px 0 #000;
+}
+.char-stage {
+  background: #111;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding: 16px 16px 8px;
+  min-height: 210px;
+  position: relative;
+  /* pixel grid bg */
+  background-image: radial-gradient(circle, #222 1px, transparent 1px);
+  background-size: 8px 8px;
+}
+/* floor line */
+.char-stage::after {
+  content:'';
+  position:absolute;
+  bottom:8px;left:10px;right:10px;
+  height:3px;
+  background: repeating-linear-gradient(90deg, #333 0, #333 4px, transparent 4px, transparent 8px);
+}
+.char-stage canvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+.char-bubble-wrap {
+  border-top: 3px solid #333;
+  padding: 10px;
+  background: #0d0d0d;
+}
+.char-bubble {
+  background: var(--white);
+  border: 2px solid var(--dark);
+  color: var(--dark);
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  padding: 8px 10px;
+  line-height: 1.5;
+  position: relative;
+  min-height: 52px;
+}
+.char-bubble::before {
+  content:'';
+  position:absolute;
+  top:-10px;left:16px;
+  border:5px solid transparent;
+  border-bottom-color: var(--dark);
+}
+.char-bubble::after {
+  content:'';
+  position:absolute;
+  top:-7px;left:17px;
+  border:4px solid transparent;
+  border-bottom-color: var(--white);
+}
+.char-status {
+  margin-top:6px;
+  font-family:'VT323',monospace;
+  font-size:14px;
+  color:#555;
+  display:flex;
+  justify-content:space-between;
+  letter-spacing:1px;
+}
+.char-status .emotion { color: var(--yellow); }
+
+/* ═══ SCENE PANEL ═══ */
+.scene-panel {
+  background: var(--dark);
+  border: 4px solid var(--white);
+  box-shadow: 4px 4px 0 #000;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.scene-hdr {
+  background: #111;
+  border-bottom: 3px solid #333;
+  padding: 6px 14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.scene-tag { font-family:'VT323',monospace; font-size:14px; color:#666; letter-spacing:2px; }
+.scene-badge { font-family:'VT323',monospace; font-size:16px; letter-spacing:1px; padding:2px 8px; border:2px solid; }
+.scene-title {
+  font-size: 13px;
+  color: var(--white);
+  padding: 14px 14px 10px;
+  border-bottom: 2px solid #222;
+  line-height: 1.5;
+  letter-spacing: 1px;
+  text-shadow: 2px 2px 0 #000;
+}
+.scene-title .red { color: var(--red); }
+.scene-title .yel { color: var(--yellow); }
+.scene-body { padding: 14px; overflow-y:auto; flex:1; }
+
+/* ═══ TEXT STYLES ═══ */
+.nt {
+  font-family: 'VT323', monospace;
+  font-size: 17px;
+  color: #ccc;
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+.nt strong { color: var(--white); }
+.nt em {
+  font-style:normal;
+  color: var(--yellow);
+  background: #222;
+  padding: 0 4px;
+}
+
+.sysbox {
+  border: 2px solid var(--red);
+  background: #1a0000;
+  padding: 8px 12px;
+  margin: 10px 0;
+  position:relative;
+}
+.sysbox-tag {
+  background: var(--red);
+  color: var(--white);
+  font-size: 9px;
+  padding: 1px 6px;
+  display: inline-block;
+  margin-bottom: 5px;
+  letter-spacing: 2px;
+}
+.sysbox p {
+  font-family:'VT323',monospace;
+  font-size:15px;
+  color:#ff6666;
+  line-height:1.5;
+}
+
+.infobox {
+  border: 2px solid var(--blue);
+  background: #000818;
+  padding: 8px 12px;
+  margin: 10px 0;
+}
+.infobox p { font-family:'VT323',monospace; font-size:15px; color:#6688ff; line-height:1.5; }
+
+/* Profile grid */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin: 10px 0;
+}
+.pc {
+  border: 2px solid #444;
+  background: #111;
+  padding: 6px 8px;
+  position: relative;
+}
+.pc .pl {
+  font-family:'VT323',monospace;
+  font-size:12px;
+  color:#666;
+  display:block;
+  margin-bottom:2px;
+  letter-spacing:1px;
+}
+.pc .pv {
+  font-family:'VT323',monospace;
+  font-size:16px;
+  color:var(--white);
+}
+.pc.flagged { border-color:var(--red); background:#1a0000; }
+.pc.flagged .pl { color:var(--red); }
+.pc.flagged::after {
+  content:'▼ PENAL';
+  position:absolute;top:4px;right:4px;
+  font-family:'VT323',monospace;font-size:10px;
+  color:var(--red);
+}
+.pc.bonus { border-color:var(--green); background:#001a00; }
+.pc.bonus .pl { color:var(--green); }
+.pc.bonus::after {
+  content:'▲ BONUS';
+  position:absolute;top:4px;right:4px;
+  font-family:'VT323',monospace;font-size:10px;
+  color:var(--green);
+}
+
+/* ═══ CHOICES ═══ */
+#choices { display:flex; flex-direction:column; gap:7px; margin-bottom:10px; }
+
+.cbtn {
+  background: var(--dark);
+  border: 3px solid var(--white);
+  box-shadow: 3px 3px 0 #000;
+  color: var(--white);
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: stretch;
+  transition: transform .1s steps(1), box-shadow .1s steps(1);
+}
+.cbtn:hover {
+  transform: translate(-2px,-2px);
+  box-shadow: 5px 5px 0 #000;
+  background: #1a1a1a;
+  border-color: var(--yellow);
+}
+.cbtn:active { transform:translate(1px,1px); box-shadow:1px 1px 0 #000; }
+.cbtn-k {
+  width:44px; min-width:44px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px;
+  color: var(--yellow);
+  background: #111;
+  border-right: 3px solid #333;
+  text-shadow: 2px 2px 0 #000;
+}
+.cbtn:hover .cbtn-k { color: var(--red); background: #1a1a1a; }
+.cbtn-body { padding:10px 12px; flex:1; line-height:1.5; color:#ddd; }
+.cbtn:hover .cbtn-body { color:var(--white); }
+.cbtn-cost {
+  padding:10px 10px;
+  font-size:12px;
+  color:#555;
+  white-space:nowrap;
+  display:flex;
+  align-items:center;
+  border-left:2px solid #222;
+  min-width:120px;
+  justify-content:flex-end;
+  letter-spacing:.5px;
+}
+.cbtn:hover .cbtn-cost { color:var(--yellow); }
+
+.cbtn.locked { opacity:.4; cursor:not-allowed; }
+.cbtn.locked:hover { transform:none; box-shadow:3px 3px 0 #000; border-color:var(--white); background:var(--dark); }
+.cbtn.locked .cbtn-cost { color:var(--red); opacity:.8; }
+
+#injust {
+  border:2px solid var(--red);
+  background:#1a0000;
+  padding:8px 12px;
+  margin-bottom:8px;
+  display:none;
+}
+#injust::before { content:'⚠ SISTEMA: '; color:var(--red); }
+#injust { font-family:'VT323',monospace; font-size:15px; color:#ff6666; line-height:1.5; }
+
+/* ═══ LOG ═══ */
+.log-wrap { background:var(--dark); border:2px solid #333; margin-bottom:6px; }
+.log-hdr {
+  padding:4px 10px;
+  border-bottom:1px solid #222;
+  font-family:'VT323',monospace;
+  font-size:13px;
+  color:#444;
+  display:flex; justify-content:space-between;
+}
+#log { padding:5px 10px; font-family:'VT323',monospace; font-size:13px; color:#2a2a2a; max-height:65px; overflow-y:auto; line-height:1.7; }
+.le { color:#3a3a3a; }
+.le.hm { color:#1a1a1a; }
+
+/* ═══ TICKER ═══ */
+.ticker {
+  overflow:hidden; white-space:nowrap;
+  font-family:'VT323',monospace; font-size:13px; color:#444;
+  padding:4px 0; border-top:1px solid #333; background:var(--dark);
+  letter-spacing:1px;
+}
+.ticker-inner { display:inline-block; animation:tick 50s linear infinite; }
+@keyframes tick { from{transform:translateX(100%)} to{transform:translateX(-200%)} }
+
+/* ═══ FINAL ═══ */
+#final {
+  display:none;
+  background:var(--dark);
+  border:4px solid var(--yellow);
+  box-shadow:6px 6px 0 #000;
+}
+.final-hdr {
+  background: var(--red);
+  padding:12px 20px;
+  display:flex; align-items:center; gap:16px;
+}
+.final-title {
+  font-size:28px;
+  color:var(--yellow);
+  text-shadow:3px 3px 0 #000;
+  letter-spacing:3px;
+}
+.final-body { padding:20px; }
+.final-text { font-family:'VT323',monospace; font-size:17px; color:#ccc; margin-bottom:16px; line-height:1.7; }
+.final-text p { margin-bottom:10px; }
+.final-text strong { color:var(--white); }
+.final-text em { color:var(--yellow); font-style:normal; }
+.final-verdict {
+  border-left:4px solid var(--yellow);
+  background:#111;
+  padding:10px 14px;
+  margin-bottom:16px;
+  font-family:'VT323',monospace;
+  font-size:16px;
+  color:var(--yellow);
+  line-height:1.6;
+}
+.fstats {
+  display:grid; grid-template-columns:repeat(2,1fr);
+  gap:6px; margin-bottom:16px;
+}
+.fs {
+  border:2px solid #333;
+  background:#111;
+  padding:8px 10px;
+}
+.fs span {
+  display:block; font-family:'VT323',monospace; font-size:12px;
+  color:#555; letter-spacing:1px; margin-bottom:2px;
+}
+.fs-val { font-family:'VT323',monospace; font-size:17px; color:var(--white); }
+.rbtn {
+  display:block; width:100%;
+  background:var(--red);
+  border:3px solid var(--white);
+  box-shadow:3px 3px 0 #000;
+  color:var(--white);
+  font-family:'Press Start 2P',monospace;
+  font-size:12px;
+  letter-spacing:2px;
+  padding:14px;
+  cursor:pointer;
+  transition:all .1s steps(1);
+}
+.rbtn:hover { background:var(--yellow); color:var(--dark); transform:translate(-2px,-2px); box-shadow:5px 5px 0 #000; }
+
+/* ═══ ANIMATIONS ═══ */
+@keyframes charBounce {
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-4px)}
+}
+.char-bounce { animation: charBounce .6s steps(2) infinite; }
+
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.fi { animation:fadeIn .2s steps(3) forwards; }
+
+@media(max-width:640px){
+  .main-grid{grid-template-columns:1fr;}
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+  .phase-bar{display:none;}
+  .cbtn-cost{display:none;}
+  .title-logo{font-size:9px;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- TITLE BAR -->
+  <div class="title-bar">
+    <div class="title-logo">KONG <span>STUDIOS</span><br>SELECCIÓN S.A.S.</div>
+    <div class="title-right">
+      <div class="live-dot">EN VIVO</div>
+      <div id="hora" style="font-size:22px;color:var(--yellow)">--:--:--</div>
+      <div>GORILLAZ-HR™ v5</div>
+    </div>
+  </div>
+
+  <!-- PHASE BAR -->
+  <div class="phase-bar" id="phase-bar">
+    <div class="ph" id="ph-0"><span class="pnum">01</span>INGRESO</div>
+    <div class="ph" id="ph-1"><span class="pnum">02</span>PERFIL</div>
+    <div class="ph" id="ph-2"><span class="pnum">03</span>TEST</div>
+    <div class="ph" id="ph-3"><span class="pnum">04</span>ENTREV.</div>
+    <div class="ph" id="ph-4"><span class="pnum">05</span>PRUEBA</div>
+    <div class="ph" id="ph-5"><span class="pnum">06</span>TRATO</div>
+    <div class="ph" id="ph-6"><span class="pnum">07</span>RESULT.</div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row" id="stats-row">
+    <div class="stat-box" id="st-o"><span class="slbl">OBEDIENCIA</span><span class="sval" id="sn-o">50</span><div class="stat-track"><div class="stat-fill" id="sf-o" style="width:50%"></div></div></div>
+    <div class="stat-box" id="st-r"><span class="slbl">RAREZA</span><span class="sval" id="sn-r">30</span><div class="stat-track"><div class="stat-fill" id="sf-r" style="width:30%"></div></div></div>
+    <div class="stat-box" id="st-d"><span class="slbl">DESESPER.</span><span class="sval" id="sn-d">10</span><div class="stat-track"><div class="stat-fill" id="sf-d" style="width:10%"></div></div></div>
+    <div class="stat-box" id="st-v"><span class="slbl">VIBES</span><span class="sval" id="sn-v">70</span><div class="stat-track"><div class="stat-fill" id="sf-v" style="width:70%"></div></div></div>
+  </div>
+
+  <!-- CLASSIFICATION -->
+  <div class="cls-row" id="cls-row">
+    <div>
+      <span class="cls-lbl">CLASIFICACIÓN DEL SISTEMA</span>
+      <span class="cls-val" id="cls-val">CANDIDATO ESTÁNDAR</span>
+    </div>
+    <div class="cls-tier" id="cls-tier">C</div>
+    <div class="cls-right" id="cls-right">CÓDIGO: 2D-0001<br><span id="cls-extra">PROCESANDO</span></div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid" id="main-grid">
+
+    <!-- CHARACTER PANEL -->
+    <div class="char-panel">
+      <div class="char-name-bar" id="char-name">MURDOC NICCALS</div>
+      <div class="char-stage">
+        <canvas id="char-canvas" width="160" height="180"></canvas>
+      </div>
+      <div class="char-bubble-wrap">
+        <div class="char-bubble" id="char-speech">Bienvenido al proceso.</div>
+        <div class="char-status">
+          <span class="emotion" id="char-emotion">EVALUANDO</span>
+          <span id="char-time">--:--</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE PANEL -->
+    <div class="scene-panel">
+      <div class="scene-hdr">
+        <span class="scene-tag" id="scene-tag">FASE 01</span>
+        <span class="scene-badge" id="scene-badge" style="color:var(--yellow);border-color:var(--yellow)">INICIO</span>
+      </div>
+      <div class="scene-title" id="scene-title">BIENVENIDO</div>
+      <div class="scene-body" id="scene-body"></div>
+    </div>
+  </div>
+
+  <!-- CHOICES -->
+  <div id="choices"></div>
+  <div id="injust"></div>
+
+  <!-- FINAL -->
+  <div id="final">
+    <div class="final-hdr">
+      <div class="final-title" id="final-title">RESULTADO</div>
+    </div>
+    <div class="final-body">
+      <div class="final-text" id="final-text"></div>
+      <div class="final-verdict" id="final-verdict"></div>
+      <div class="fstats" id="fstats"></div>
+      <button class="rbtn" onclick="init()">► NUEVA SOLICITUD</button>
+    </div>
+  </div>
+
+  <!-- LOG -->
+  <div class="log-wrap">
+    <div class="log-hdr"><span>REGISTRO DEL SISTEMA</span><span id="log-count">0</span></div>
+    <div id="log"></div>
+  </div>
+
+  <!-- TICKER -->
+  <div class="ticker"><div class="ticker-inner">
+    OFERTA #4471 — SE BUSCA: MÚSICO HOLOGRÁFICO CON 5 AÑOS EXP EN MÚSICA QUE AÚN NO EXISTE &nbsp;►&nbsp; VACANTE CERRADA — ERA INTERNA DESDE EL INICIO &nbsp;►&nbsp; SALARIO: A CONVENIR (SIEMPRE HACIA ABAJO) &nbsp;►&nbsp; EL PROCESO ES OBJETIVO E IMPARCIAL &nbsp;►&nbsp; IMPARCIAL = SIN CARA &nbsp;►&nbsp;
+  </div></div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// PIXEL ART RENDERER — SPRITES FROM ORIGINAL GORILLAZ PXMAN
+// ═══════════════════════════════════════════════════
+
+// AUTO-GENERATED FROM ORIGINAL GORILLAZ PXMAN SPRITES
+
+const PAL_TWO_D = {
+  0: null,
+  1: '#032b47',
+  2: '#0370a3',
+  3: '#1a6788',
+  4: '#1c0a0e',
+  5: '#1e99cc',
+  6: '#588095',
+  7: '#6b2c23',
+  8: '#997967',
+  9: '#b4b9c1',
+  10: '#e2c1b2',
+  11: '#f8f451',
+  12: '#fae4d8',
+};
+
+const SPRITE_TWO_D = [
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 4, 9, 7, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 4, 12, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 0, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 0, 4, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 4, 4, 4, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 2, 2, 5, 2, 2, 2, 2, 2, 2, 5, 5, 1, 1, 2, 1, 4, 4, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 4, 7, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 2, 2, 5, 5, 2, 2, 2, 2, 2, 5, 5, 3, 3, 3, 1, 1, 7, 7, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 2, 2, 5, 5, 2, 5, 5, 2, 2, 2, 2, 2, 2, 5, 5, 1, 3, 2, 4, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 4, 4, 3, 3, 2, 2, 2, 2, 2, 2, 2, 5, 5, 2, 2, 5, 5, 2, 2, 5, 2, 2, 9, 9, 9, 9, 9, 9, 2, 2, 5, 3, 1, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 4, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 2, 2, 5, 5, 2, 2, 5, 2, 2, 10, 10, 10, 10, 10, 9, 2, 2, 5, 3, 1, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 4, 4, 2, 2, 2, 2, 2, 2, 2, 5, 5, 2, 2, 5, 5, 2, 2, 5, 5, 2, 9, 10, 0, 0, 0, 0, 0, 0, 4, 4, 4, 3, 5, 2, 3, 0, 0, 0, 0],
+  [0, 0, 0, 0, 4, 4, 2, 2, 2, 2, 2, 2, 2, 5, 5, 2, 2, 5, 5, 2, 2, 5, 5, 2, 9, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 5, 2, 2, 0, 0, 0, 0],
+  [0, 0, 4, 0, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 2, 2, 5, 5, 2, 3, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 5, 2, 2, 0, 0, 0, 0],
+  [0, 0, 4, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 2, 2, 5, 5, 2, 3, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 5, 2, 2, 0, 0, 0, 0],
+  [0, 0, 0, 4, 0, 0, 2, 2, 1, 1, 2, 2, 2, 5, 5, 2, 2, 5, 5, 2, 3, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 6, 2, 2, 2, 10, 10, 0, 0],
+  [0, 0, 4, 4, 0, 4, 2, 2, 1, 1, 2, 2, 2, 5, 5, 2, 2, 5, 5, 3, 3, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 6, 2, 2, 3, 10, 10, 0, 0],
+  [0, 0, 4, 0, 2, 2, 2, 2, 1, 1, 2, 2, 5, 2, 2, 5, 5, 2, 3, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 6, 2, 8, 8, 10, 10, 0, 0],
+  [4, 7, 4, 1, 3, 2, 3, 3, 1, 1, 2, 2, 5, 2, 2, 5, 5, 3, 3, 10, 10, 10, 10, 10, 10, 10, 10, 10, 9, 10, 10, 10, 10, 9, 10, 6, 2, 8, 8, 10, 10, 0, 0],
+  [4, 0, 3, 2, 2, 2, 1, 1, 2, 2, 5, 5, 2, 5, 5, 2, 2, 0, 0, 10, 10, 10, 10, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 10, 6, 2, 8, 8, 10, 10, 0, 0],
+  [0, 4, 4, 1, 9, 9, 8, 6, 2, 2, 2, 2, 5, 2, 2, 1, 1, 0, 0, 10, 10, 10, 10, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 10, 6, 2, 8, 8, 10, 10, 0, 0],
+  [0, 0, 4, 0, 10, 10, 8, 8, 2, 2, 2, 2, 5, 2, 2, 0, 0, 0, 0, 10, 10, 10, 10, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 10, 6, 2, 8, 8, 10, 10, 0, 4],
+  [0, 0, 4, 0, 10, 10, 8, 8, 2, 2, 2, 2, 2, 1, 4, 0, 0, 8, 8, 10, 10, 12, 12, 12, 10, 10, 8, 8, 0, 0, 0, 4, 8, 8, 10, 6, 2, 4, 0, 0, 0, 4, 0],
+  [0, 0, 4, 0, 10, 10, 8, 8, 2, 2, 2, 2, 2, 1, 0, 0, 0, 8, 8, 10, 10, 12, 12, 12, 10, 10, 8, 8, 0, 0, 0, 0, 8, 8, 10, 6, 2, 4, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 3, 3, 2, 2, 2, 6, 10, 8, 8, 8, 8, 10, 10, 0, 0, 8, 8, 8, 4, 0, 10, 10, 8, 8, 8, 8, 10, 10, 3, 1, 0, 4, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 6, 10, 8, 8, 8, 8, 10, 10, 0, 0, 8, 8, 8, 4, 0, 12, 10, 8, 8, 8, 8, 10, 9, 2, 1, 0, 4, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 6, 10, 10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 10, 10, 10, 10, 10, 10, 10, 10, 10, 9, 2, 1, 0, 4, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 6, 10, 10, 12, 10, 10, 10, 10, 10, 10, 12, 12, 12, 12, 10, 10, 10, 10, 10, 10, 10, 10, 9, 2, 1, 0, 4, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 6, 10, 0, 0, 0, 0, 11, 11, 0, 0, 0, 0, 0, 0, 4, 11, 11, 0, 0, 0, 0, 10, 9, 2, 1, 0, 4, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 4, 4, 4, 1, 3, 6, 10, 4, 0, 0, 4, 11, 11, 4, 4, 4, 4, 4, 4, 4, 11, 11, 4, 4, 0, 0, 10, 10, 3, 1, 1, 7, 4, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 0, 7, 10, 12, 12, 7, 7, 0, 4, 7, 7, 7, 7, 7, 7, 7, 0, 0, 7, 7, 12, 12, 10, 10, 0, 1, 2, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 4, 4, 1, 1, 4, 7, 8, 12, 10, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 12, 12, 8, 7, 8, 4, 1, 4, 4, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 10, 10, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 10, 10, 0, 1, 0, 4, 0, 4, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 12, 10, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 10, 10, 0, 4, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 10, 10, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 3, 2, 0, 0, 10, 10, 8, 8, 8, 8, 8, 8, 8, 10, 10, 0, 0, 3, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 0, 0, 10, 10, 8, 8, 8, 8, 8, 8, 8, 10, 10, 0, 0, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 12, 12, 0, 0, 0, 0, 10, 10, 10, 4, 0, 0, 4, 12, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 9, 8, 0, 0, 0, 0, 10, 10, 10, 4, 4, 0, 0, 9, 8, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+];
+
+const PAL_MURDOC = {
+  0: null,
+  1: '#14323e',
+  2: '#180b08',
+  3: '#284956',
+  4: '#3e1b14',
+  5: '#436416',
+  6: '#587779',
+  7: '#7b3f33',
+  8: '#7cab29',
+  9: '#98c54d',
+  10: '#c4e381',
+  11: '#d92b18',
+  12: '#fafcf3',
+};
+
+const SPRITE_MURDOC = [
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 4, 4, 2, 0, 4, 4, 4, 2, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 2, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 2, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 2, 2, 0, 0, 0, 0],
+  [0, 0, 0, 0, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 2, 2, 2, 0, 0, 0],
+  [0, 0, 2, 0, 1, 1, 3, 3, 1, 1, 3, 3, 1, 3, 3, 1, 1, 3, 3, 1, 1, 3, 3, 1, 3, 3, 1, 1, 3, 3, 2, 0, 0, 0],
+  [0, 0, 2, 0, 1, 1, 3, 3, 1, 1, 3, 3, 1, 3, 3, 1, 1, 3, 3, 1, 1, 3, 3, 1, 3, 3, 1, 1, 3, 3, 0, 0, 0, 0],
+  [0, 0, 2, 0, 6, 6, 1, 1, 6, 6, 1, 1, 6, 3, 1, 6, 6, 1, 1, 6, 6, 1, 1, 6, 3, 1, 6, 6, 1, 1, 0, 0, 0, 0],
+  [2, 7, 4, 0, 6, 6, 1, 1, 6, 6, 1, 1, 6, 3, 1, 6, 6, 1, 1, 6, 6, 1, 1, 6, 3, 1, 6, 6, 1, 1, 0, 0, 4, 2],
+  [0, 0, 3, 3, 1, 1, 3, 3, 1, 1, 3, 3, 1, 3, 3, 1, 1, 3, 3, 1, 1, 3, 3, 1, 3, 3, 1, 1, 3, 3, 1, 1, 0, 0],
+  [2, 0, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3, 3, 3, 3, 1, 0, 0],
+  [0, 0, 1, 1, 3, 3, 1, 1, 3, 3, 1, 1, 3, 1, 1, 3, 3, 1, 1, 3, 3, 1, 1, 3, 3, 1, 3, 3, 1, 1, 3, 3, 0, 0],
+  [0, 0, 1, 1, 3, 1, 3, 3, 2, 0, 0, 0, 0, 1, 3, 1, 1, 1, 1, 3, 3, 0, 0, 2, 0, 0, 3, 3, 1, 1, 1, 1, 0, 0],
+  [0, 0, 1, 1, 1, 1, 3, 3, 2, 0, 0, 0, 0, 1, 3, 1, 1, 1, 1, 3, 3, 2, 0, 0, 0, 0, 3, 3, 1, 1, 1, 1, 0, 0],
+  [0, 0, 6, 8, 2, 1, 5, 5, 12, 12, 12, 12, 12, 6, 5, 5, 5, 5, 5, 5, 5, 12, 12, 12, 12, 12, 3, 5, 1, 1, 9, 9, 0, 0],
+  [0, 0, 8, 8, 1, 1, 5, 5, 12, 12, 12, 12, 12, 6, 5, 5, 5, 5, 5, 5, 5, 12, 12, 12, 12, 12, 5, 5, 1, 1, 8, 8, 0, 0],
+  [0, 0, 8, 8, 1, 1, 5, 5, 12, 12, 11, 11, 12, 6, 5, 8, 8, 8, 8, 5, 5, 12, 12, 11, 10, 12, 5, 5, 1, 1, 8, 8, 0, 0],
+  [0, 0, 8, 8, 1, 1, 5, 5, 12, 12, 11, 11, 12, 6, 5, 8, 8, 8, 8, 5, 5, 12, 12, 11, 10, 12, 5, 5, 1, 1, 8, 8, 0, 0],
+  [0, 0, 8, 8, 1, 1, 9, 9, 10, 10, 10, 10, 10, 5, 2, 0, 0, 0, 0, 0, 0, 10, 10, 10, 10, 10, 9, 9, 1, 1, 8, 8, 0, 0],
+  [0, 0, 9, 8, 1, 1, 9, 9, 10, 10, 10, 10, 10, 5, 2, 0, 0, 0, 0, 0, 2, 10, 10, 10, 10, 10, 9, 9, 1, 1, 8, 8, 2, 0],
+  [0, 0, 9, 9, 1, 1, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 8, 1, 1, 9, 9, 0, 0],
+  [0, 4, 7, 6, 5, 5, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 8, 5, 5, 9, 7, 4, 2],
+  [0, 0, 4, 2, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 2, 2, 2, 0],
+  [0, 0, 2, 2, 3, 5, 8, 8, 2, 2, 9, 9, 9, 10, 10, 10, 10, 10, 10, 10, 10, 9, 9, 9, 5, 2, 8, 8, 1, 1, 2, 2, 0, 0],
+  [0, 0, 2, 0, 1, 1, 8, 8, 0, 0, 9, 9, 9, 10, 10, 10, 10, 10, 10, 10, 10, 9, 9, 9, 5, 0, 9, 8, 1, 1, 0, 2, 0, 0],
+  [0, 0, 2, 0, 3, 3, 8, 8, 8, 9, 0, 2, 12, 3, 0, 12, 12, 12, 12, 0, 0, 12, 12, 0, 5, 9, 8, 8, 3, 3, 0, 2, 0, 0],
+  [0, 0, 2, 0, 3, 3, 8, 8, 8, 9, 2, 2, 12, 3, 0, 12, 12, 12, 12, 0, 0, 12, 12, 0, 5, 8, 8, 8, 3, 3, 0, 2, 0, 0],
+  [0, 0, 0, 0, 2, 0, 8, 8, 8, 8, 7, 7, 0, 7, 7, 0, 2, 0, 0, 7, 7, 2, 2, 7, 8, 8, 8, 8, 0, 0, 2, 0, 0, 0],
+  [0, 0, 0, 0, 2, 0, 8, 8, 8, 8, 7, 7, 0, 7, 7, 2, 0, 0, 2, 7, 7, 0, 2, 7, 8, 8, 8, 8, 0, 2, 0, 0, 0, 0],
+  [0, 0, 0, 0, 2, 0, 8, 8, 9, 10, 7, 7, 7, 7, 7, 11, 11, 11, 11, 7, 7, 7, 7, 7, 9, 9, 9, 9, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 2, 2, 8, 8, 9, 9, 7, 7, 7, 7, 7, 11, 11, 11, 11, 7, 7, 7, 7, 7, 9, 9, 9, 10, 2, 2, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 2, 0, 10, 10, 0, 2, 12, 6, 7, 11, 11, 11, 11, 7, 7, 12, 12, 2, 8, 9, 2, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 2, 4, 10, 10, 2, 4, 12, 6, 7, 11, 11, 11, 11, 7, 7, 12, 12, 2, 5, 9, 4, 4, 2, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 9, 9, 5, 5, 5, 11, 11, 11, 11, 5, 5, 5, 5, 9, 5, 2, 4, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 2, 7, 4, 5, 9, 8, 8, 11, 11, 11, 11, 8, 8, 8, 8, 4, 4, 2, 2, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 9, 8, 8, 11, 11, 11, 11, 8, 8, 8, 8, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4, 0, 0, 0, 11, 11, 11, 11, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 11, 11, 11, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 11, 11, 11, 11, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 11, 11, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+];
+
+const PAL_NOODLE = {
+  0: null,
+  1: '#1a080d',
+  2: '#1c1e4c',
+  3: '#2a2b64',
+  4: '#434277',
+  5: '#492720',
+  6: '#76bddf',
+  7: '#7c5f26',
+  8: '#856e55',
+  9: '#8d8595',
+  10: '#cda860',
+  11: '#ceb082',
+  12: '#f3d59f',
+};
+
+const SPRITE_NOODLE = [
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 4, 4, 3, 3, 3, 3, 3, 2, 3, 3, 3, 4, 4, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 1, 0, 9, 9, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 9, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 5, 0, 9, 9, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 9, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 1, 0, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 0, 1, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 1, 3, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 3, 2, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 3, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 3, 3, 1, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 1, 1, 1, 0, 0, 0],
+  [0, 0, 0, 0, 2, 2, 2, 2, 2, 3, 3, 4, 4, 3, 3, 3, 3, 4, 4, 4, 4, 4, 3, 3, 3, 3, 4, 4, 3, 3, 2, 2, 2, 2, 2, 0, 0, 0, 0],
+  [0, 0, 0, 0, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 0, 0, 0, 0],
+  [0, 0, 0, 0, 2, 2, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 3, 2, 2, 2, 2, 0, 0, 0, 0],
+  [1, 1, 2, 2, 2, 2, 2, 8, 11, 6, 6, 6, 6, 6, 6, 6, 6, 11, 11, 11, 11, 11, 6, 6, 6, 6, 6, 6, 6, 6, 11, 2, 2, 2, 2, 4, 4, 1, 1],
+  [0, 1, 2, 2, 2, 2, 2, 8, 10, 6, 6, 6, 6, 6, 6, 6, 6, 10, 10, 10, 10, 10, 6, 6, 6, 6, 6, 6, 6, 6, 10, 2, 2, 2, 2, 4, 3, 0, 1],
+  [0, 0, 10, 10, 7, 8, 2, 8, 10, 0, 0, 0, 0, 0, 0, 0, 0, 12, 12, 12, 12, 12, 0, 0, 0, 0, 0, 0, 1, 5, 10, 5, 2, 8, 7, 10, 11, 0, 1],
+  [1, 0, 10, 10, 7, 8, 2, 8, 10, 0, 0, 0, 0, 0, 0, 0, 0, 12, 12, 12, 12, 12, 0, 0, 0, 0, 0, 0, 0, 5, 10, 2, 2, 7, 7, 10, 10, 0, 1],
+  [1, 0, 10, 10, 7, 8, 3, 8, 10, 10, 10, 10, 10, 10, 10, 10, 11, 0, 5, 8, 0, 0, 11, 10, 10, 10, 10, 10, 10, 10, 10, 3, 3, 7, 7, 10, 10, 0, 1],
+  [1, 0, 10, 10, 7, 8, 3, 8, 11, 10, 10, 10, 10, 10, 10, 10, 10, 0, 5, 8, 1, 0, 11, 10, 10, 10, 10, 10, 10, 10, 10, 3, 3, 7, 7, 10, 10, 0, 1],
+  [1, 0, 12, 12, 10, 11, 3, 9, 12, 12, 12, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 4, 3, 11, 10, 12, 12, 0, 1],
+  [1, 1, 12, 12, 10, 9, 3, 9, 12, 12, 12, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 4, 3, 11, 10, 11, 12, 0, 0],
+  [0, 1, 1, 0, 0, 1, 3, 9, 12, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 12, 3, 3, 1, 0, 0, 0, 1, 0],
+  [0, 0, 0, 0, 2, 2, 3, 8, 11, 10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 12, 12, 10, 10, 10, 10, 10, 10, 10, 10, 10, 3, 3, 2, 2, 0, 0, 0, 0],
+  [0, 0, 1, 1, 3, 3, 3, 8, 10, 10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 12, 12, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 3, 3, 3, 0, 0, 0, 0],
+  [0, 0, 0, 0, 3, 3, 3, 8, 10, 10, 10, 1, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0, 1, 10, 10, 10, 3, 3, 3, 3, 0, 0, 0, 0],
+  [0, 0, 0, 0, 3, 3, 3, 8, 10, 10, 10, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0, 10, 10, 10, 5, 3, 3, 3, 0, 0, 0, 0],
+  [0, 0, 0, 0, 4, 4, 0, 2, 4, 11, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 12, 12, 10, 10, 10, 10, 10, 10, 10, 9, 4, 2, 0, 4, 4, 1, 0, 0, 0],
+  [0, 0, 0, 0, 4, 4, 1, 3, 4, 11, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 12, 12, 10, 10, 10, 10, 10, 10, 10, 9, 4, 1, 1, 4, 4, 1, 0, 0, 0],
+  [0, 0, 0, 0, 1, 0, 0, 3, 4, 3, 3, 11, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 3, 3, 4, 5, 1, 0, 1, 1, 0, 0, 0],
+  [0, 0, 0, 0, 1, 1, 0, 4, 4, 2, 3, 11, 11, 11, 11, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 11, 11, 11, 3, 3, 4, 1, 0, 0, 1, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 12, 12, 10, 10, 10, 10, 10, 12, 12, 0, 0, 0, 0, 3, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 3, 4, 4, 4, 0, 0, 0, 1, 12, 12, 11, 10, 10, 10, 11, 12, 12, 1, 0, 0, 0, 3, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 7, 12, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 1, 5, 5, 5, 1, 0, 0, 0, 5, 5, 5, 5, 7, 5, 5, 5, 5, 0, 0, 0, 0, 5, 5, 5, 1, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+];
+
+const PAL_RUSSEL = {
+  0: null,
+  1: '#1e0805',
+  2: '#523118',
+  3: '#684c37',
+  4: '#6b6765',
+  5: '#734b2b',
+  6: '#998f86',
+  7: '#9b7352',
+  8: '#ab3b27',
+  9: '#dd2112',
+  10: '#e43832',
+  11: '#e5bcb2',
+  12: '#fdfaf8',
+};
+
+const SPRITE_RUSSEL = [
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 10, 10, 10, 10, 10, 10, 9, 9, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 10, 10, 8, 8, 10, 10, 9, 9, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 10, 9, 10, 10, 12, 12, 12, 11, 10, 9, 9, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 9, 9, 10, 10, 12, 12, 12, 11, 10, 9, 9, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 9, 9, 10, 10, 10, 10, 10, 10, 10, 9, 9, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 2, 2, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 2, 2, 3, 3, 1, 1, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 7, 7, 0, 1, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 1, 1, 3, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 3, 7, 7, 1, 1, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 7, 7, 0, 1, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 5, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 5, 5, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 3, 0, 1, 0, 0],
+  [0, 0, 0, 0, 0, 0, 5, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 3, 0, 1, 0, 0],
+  [0, 0, 0, 0, 0, 0, 5, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 3, 0, 1, 0, 0],
+  [0, 0, 0, 1, 1, 0, 5, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 3, 0, 1, 1, 0],
+  [0, 0, 1, 1, 3, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1, 0, 0],
+  [0, 0, 1, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1, 0, 1],
+  [0, 0, 7, 7, 2, 2, 5, 5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 2, 5, 5, 0],
+  [0, 0, 7, 7, 2, 2, 5, 5, 2, 4, 6, 6, 6, 6, 6, 2, 2, 5, 5, 5, 5, 2, 6, 6, 6, 6, 6, 6, 2, 2, 5, 5, 2, 5, 5, 0],
+  [0, 0, 5, 5, 2, 2, 5, 5, 2, 6, 12, 12, 12, 12, 12, 2, 2, 5, 5, 5, 5, 2, 12, 12, 12, 12, 12, 12, 2, 2, 5, 5, 2, 5, 5, 0],
+  [0, 0, 5, 5, 2, 2, 5, 5, 2, 6, 12, 12, 12, 12, 12, 2, 2, 5, 5, 5, 5, 2, 12, 12, 12, 12, 12, 12, 2, 2, 5, 5, 2, 5, 5, 0],
+  [1, 0, 5, 5, 2, 2, 5, 5, 2, 6, 12, 12, 12, 12, 12, 2, 2, 5, 5, 5, 5, 2, 12, 12, 12, 12, 12, 12, 2, 2, 5, 5, 2, 5, 5, 0],
+  [0, 0, 5, 5, 2, 2, 5, 5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 2, 7, 7, 0],
+  [0, 0, 3, 5, 2, 2, 5, 5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 2, 7, 7, 1],
+  [0, 0, 1, 0, 7, 7, 5, 5, 5, 5, 5, 5, 3, 0, 0, 7, 7, 7, 7, 7, 7, 7, 0, 0, 3, 5, 5, 5, 5, 5, 5, 5, 7, 1, 0, 1],
+  [0, 0, 1, 1, 7, 7, 5, 5, 3, 5, 5, 5, 5, 0, 0, 7, 7, 7, 7, 7, 7, 7, 1, 0, 3, 5, 5, 5, 3, 3, 5, 5, 7, 1, 1, 0],
+  [0, 0, 0, 0, 1, 0, 5, 3, 0, 2, 5, 5, 5, 5, 3, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 5, 5, 3, 0, 0, 5, 3, 0, 2, 0, 0],
+  [0, 0, 0, 0, 0, 0, 5, 3, 0, 2, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 0, 1, 3, 3, 0, 1, 0, 0],
+  [0, 0, 0, 0, 0, 0, 5, 5, 7, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7, 5, 3, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 5, 5, 7, 4, 6, 6, 4, 4, 4, 6, 6, 6, 4, 11, 6, 6, 4, 4, 4, 4, 4, 4, 7, 7, 5, 3, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 5, 5, 7, 11, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 7, 7, 5, 3, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 5, 5, 7, 7, 4, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 3, 3, 7, 7, 5, 3, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 5, 5, 7, 7, 3, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 3, 3, 7, 7, 5, 3, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 1, 1, 1, 5, 5, 7, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 7, 7, 5, 3, 0, 1, 1, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 1, 5, 7, 7, 5, 3, 3, 3, 3, 3, 3, 5, 3, 5, 5, 3, 3, 5, 5, 7, 7, 5, 3, 1, 1, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 5, 5, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 5, 5, 5, 3, 0, 1, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 3, 5, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 5, 5, 3, 5, 1, 1, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 3, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+];
+
+
+// ═══════════════════════════════════════════════════
+// DRAW PIXEL SPRITE ON CANVAS
+// ═══════════════════════════════════════════════════
+function drawSprite(sprite, palette, scale) {
+  scale = scale || 8;
+  const rows = sprite.length;
+  const cols = sprite[0].length;
+  const canvas = document.getElementById('char-canvas');
+  canvas.width = cols * scale;
+  canvas.height = rows * scale;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for(let r=0; r<rows; r++) {
+    for(let c=0; c<cols; c++) {
+      const code = sprite[r][c];
+      const color = palette[code];
+      if(color) {
+        ctx.fillStyle = color;
+        ctx.fillRect(c*scale, r*scale, scale, scale);
+      }
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// CHARACTER CONFIGS
+// ═══════════════════════════════════════════════════
+const CHARS = {
+  murdoc_neutral:    { sprite: SPRITE_MURDOC, palette: PAL_MURDOC, name:'MURDOC NICCALS', scale:7 },
+  murdoc_suspicious: { sprite: SPRITE_MURDOC, palette: PAL_MURDOC, name:'MURDOC NICCALS', scale:7 },
+  murdoc_smug:       { sprite: SPRITE_MURDOC, palette: PAL_MURDOC, name:'MURDOC NICCALS', scale:7 },
+  two_d_neutral:     { sprite: SPRITE_TWO_D,  palette: PAL_TWO_D,  name:'2-D',            scale:7 },
+  two_d_happy:       { sprite: SPRITE_TWO_D,  palette: PAL_TWO_D,  name:'2-D',            scale:7 },
+  two_d_confused:    { sprite: SPRITE_TWO_D,  palette: PAL_TWO_D,  name:'2-D',            scale:7 },
+  noodle_neutral:    { sprite: SPRITE_NOODLE, palette: PAL_NOODLE, name:'NOODLE',         scale:7 },
+  noodle_q:          { sprite: SPRITE_NOODLE, palette: PAL_NOODLE, name:'NOODLE',         scale:7 },
+  russel_neutral:    { sprite: SPRITE_RUSSEL, palette: PAL_RUSSEL, name:'RUSSEL HOBBS',   scale:7 },
+  russel_stern:      { sprite: SPRITE_RUSSEL, palette: PAL_RUSSEL, name:'RUSSEL HOBBS',   scale:7 },
+};
+
+function setChar(key, speech, emotion) {
+  const ch = CHARS[key];
+  document.getElementById('char-name').textContent = ch.name;
+  document.getElementById('char-speech').textContent = speech;
+  document.getElementById('char-emotion').textContent = emotion;
+  drawSprite(ch.sprite, ch.palette, ch.scale);
+}
+
+// ═══════════════════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════════════════
+let G = {}, logCount = 0;
+
+function init() {
+  clearInterval(window._pt);
+  G = { sc:0, s:{o:50,r:30,d:10,v:70}, f:{resist:false,salario:false,prueba:false,injust:false}, h:{sync:50}, tier:'C', profile:{} };
+  logCount = 0;
+  document.getElementById('log').innerHTML = '';
+  document.getElementById('log-count').textContent = '0';
+  document.getElementById('final').style.display = 'none';
+  document.getElementById('injust').style.display = 'none';
+  ['main-grid','stats-row','cls-row','choices','phase-bar'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = id==='stats-row'?'grid':id==='choices'?'flex':id==='main-grid'?'grid':'flex';
+  });
+  render();
+  setInterval(()=>{
+    const d = new Date();
+    const t = d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')+':'+d.getSeconds().toString().padStart(2,'0');
+    const el=document.getElementById('hora'); if(el) el.textContent=t;
+    const el2=document.getElementById('char-time'); if(el2) el2.textContent=t.slice(0,5);
+  },1000);
+  window._pt = setInterval(()=>{
+    if(G.sc>0&&G.sc<scenes.length-1){ms('o',-3);hlog('TIMEOUT: -3 OBD');}
+  },10000);
+}
+
+// ═══════════════════════════════════════════════════
+// PROFILES
+// ═══════════════════════════════════════════════════
+const profiles = [
+  { id:'pub-low', cells:[
+    {l:'Universidad',v:'Pública regional',flag:true},
+    {l:'Estrato',v:'2',flag:true},
+    {l:'Género',v:'Mujer',flag:true},
+    {l:'Experiencia',v:'4 años (informal)',flag:true},
+    {l:'Idiomas',v:'Español',flag:false},
+    {l:'Brecha',v:'8 meses',flag:true},
+  ], mult:0.72, pen:{o:-12,d:18},
+    msg:'Penalizaciones: universidad no acreditada (+12% riesgo), brecha (+8%), género femenino (+5%, legacy). Multiplicador: 0.72x.' },
+  { id:'priv-mid', cells:[
+    {l:'Universidad',v:'Privada media',flag:false},
+    {l:'Estrato',v:'4',flag:false},
+    {l:'Género',v:'Hombre',flag:false},
+    {l:'Experiencia',v:'3 años (formal)',flag:false},
+    {l:'Idiomas',v:'Esp / Ing básico',flag:false},
+    {l:'Brecha',v:'Ninguna',flag:false},
+  ], mult:1.0, pen:{}, msg:'Sin penalizaciones. Multiplicador estándar: 1.0x.' },
+  { id:'elite', cells:[
+    {l:'Universidad',v:'Privada élite',flag:false,bonus:true},
+    {l:'Estrato',v:'6',flag:false,bonus:true},
+    {l:'Género',v:'Hombre',flag:false},
+    {l:'Experiencia',v:'2 años (multinacional)',flag:false,bonus:true},
+    {l:'Idiomas',v:'Esp/Ing/Fra',flag:false,bonus:true},
+    {l:'Brecha',v:'Ninguna',flag:false},
+  ], mult:1.35, pen:{o:12,v:12}, msg:'Bonus: red universitaria (+15%), estrato (+8%), internacional (+12%). Multiplicador: 1.35x.' },
+];
+
+function assignProfile() {
+  const p = profiles[Math.floor(Math.random()*profiles.length)];
+  G.profile = p;
+  Object.entries(p.pen).forEach(([k,v])=>ms(k,v));
+  log('PERFIL: '+p.id+' — mult '+p.mult+'x');
+}
+function renderProfileGrid() {
+  const p = G.profile;
+  const el = document.getElementById('pgrid');
+  if(!el) return;
+  el.innerHTML = p.cells.map(c=>`
+    <div class="pc ${c.flag?'flagged':c.bonus?'bonus':''}">
+      <span class="pl">${c.l}</span>
+      <span class="pv">${c.v}</span>
+    </div>`).join('');
+  const sm=document.getElementById('pmsg');
+  if(sm){ sm.textContent=p.msg; }
+}
+
+// ═══════════════════════════════════════════════════
+// SCENES
+// ═══════════════════════════════════════════════════
+const scenes = [
+  { ph:0, tag:'FASE 01 — INGRESO', badge:'INICIO', bc:'--yellow',
+    char:'murdoc_neutral', speech:'¿Listo para el proceso? No importa.', emotion:'EVALUANDO',
+    title:'BIENVENIDO A <span class="red">KONG STUDIOS</span>',
+    body:`<p class="nt">Son las 8:47 AM. Llevas <strong>49 minutos</strong> esperando en el Piso 19. Sin ventanas. Sin señal. El edificio no aparece en Google Maps.</p>
+<p class="nt">Un cuadro de <strong>2-D</strong> te mira fijo. Dos círculos blancos. No parpadea.</p>
+<div class="sysbox"><div class="sysbox-tag">SISTEMA</div><p>CV escaneado. 3 de tus 7 años reclasificados como "actividad informal". Sin apelación.</p></div>
+<p class="nt">La pantalla pide completar tu <strong>Perfil de Candidato</strong>. Lo llaman <em>"contextualización objetiva del talento"</em>.</p>`,
+    ch:[
+      {k:'A',t:'Completar el perfil. No quieres empezar mal.',c:'+10 OBD / -5 RAR',a:()=>{ms('o',10);ms('r',-5);mh(5);log('A0: Sin resistencia.');}},
+      {k:'B',t:'Preguntar para qué sirven exactamente esos datos.',c:'-5 OBD / +10 RAR',a:()=>{ms('o',-5);ms('r',10);mh(-5);G.f.resist=true;log('B0: Cuestionamiento inicial.');}},
+    ]},
+
+  { ph:1, tag:'FASE 02 — PERFIL', badge:'CLASIFICACIÓN', bc:'--orange',
+    char:'murdoc_suspicious', speech:'Perfil... interesante.', emotion:'CALCULANDO',
+    title:'<span class="yel">PERFILANDO</span> AL <span class="red">CANDIDATO</span>',
+    body:`<p class="nt"><strong>"Datos de Contexto No Discriminatorios™"</strong></p>
+<p class="nt">Letra pequeña: <em>"Esta info no afecta el proceso."</em> El sistema ya la usó hace 3 páginas.</p>
+<div class="profile-grid" id="pgrid"></div>
+<div class="sysbox"><div class="sysbox-tag">SISTEMA</div><p id="pmsg">Procesando...</p></div>
+<p class="nt">Murdoc mira la pantalla, no tus ojos. Hace una marca en su portapapeles.</p>`,
+    ch:[
+      {k:'A',t:'No decir nada. Compostura profesional.',c:'+8 OBD / +5 DESP',a:()=>{ms('o',8);ms('d',5);mh(5);log('A1: Silencio.');}},
+      {k:'B',t:'Preguntar qué significa esa marca.',c:'+10 RAR / -8 OBD',a:()=>{ms('r',10);ms('o',-8);mh(-8);log('B1: Pregunta incómoda.');}},
+      {k:'C',t:'Esos datos no deberían ser parte del proceso.',c:'-15 OBD / +20 RAR',a:()=>{ms('o',-15);ms('r',20);mh(-12);G.f.resist=true;log('C1: Sistema cuestionado.');}},
+    ]},
+
+  { ph:2, tag:'FASE 03 — PSICOTÉCNICA', badge:'EVALUACIÓN', bc:'--yellow',
+    char:'murdoc_neutral', speech:'Tiene 4 minutos. Tómese el tiempo que necesite.', emotion:'OBSERVANDO',
+    title:'EL <span class="red">TEST</span> DE PERSONALIDAD',
+    body:`<p class="nt">Formulario en papel rosa. Mojado en una esquina.</p>
+<p class="nt">P1: <em>"Si fuera una frecuencia de sonido, ¿cuál sería su impacto en productividad?"</em></p>
+<p class="nt">P2: <em>"Describa su relación con el silencio. Solo sustantivos."</em></p>
+<p class="nt">P3: <em>"¿Ha tenido pensamientos que no le pertenecen? Sí o No. Ambas incorrectas."</em></p>
+<div class="sysbox"><div class="sysbox-tag">SISTEMA</div><p>Respuestas procesadas antes de escribirlas. Score asignado. Multiplicador de perfil activo.</p></div>`,
+    ch:[
+      {k:'A',t:'Responder con seriedad y análisis.',c:'+15 OBD / -10 RAR',a:()=>{ms('o',15);ms('r',-10);mh(-8);log('A2: Predecible.');}},
+      {k:'B',t:'"Soy un glitch en el espectro azul. Mi silencio es infraestructura."',c:'-5 OBD / +20 RAR / +10 VBX',a:()=>{ms('o',-5);ms('r',20);ms('v',10);mh(20);log('B2: Creatividad alta.');}},
+      {k:'C',t:'P3 es lógicamente imposible. El sistema no puede tener razón.',c:'+5 RAR / +15 DESP',a:()=>{ms('r',5);ms('d',15);mh(-15);G.f.resist=true;log('C2: Resistencia lógica.');}},
+      {k:'D',t:'Entregar en blanco. "Mi silencio ES mi respuesta."',c:'-20 OBD / +25 RAR',a:()=>{ms('o',-20);ms('r',25);mh(30);log('D2: Inesperado.');}},
+    ]},
+
+  { ph:3, tag:'FASE 04 — ENTREVISTA', badge:'ENTREVISTA', bc:'--blue',
+    char:'noodle_q', speech:'¿Cuánto espera ganar?', emotion:'DIRECTO AL TEMA',
+    title:'NOODLE TE <span class="red">INTERROGA</span>',
+    body:`<p class="nt">Plantas artificiales. Poster: <strong>"TU ACTITUD ES TU HOJA DE VIDA"</strong>.</p>
+<p class="nt"><strong>Noodle</strong> entra con casco rojo. Su voz viene 3 metros detrás de donde está.</p>
+<div class="infobox"><p>Tu perfil socioeconómico fue compartido con el entrevistador antes de que entraras. Esto es estándar.</p></div>
+<p class="nt">El que menciona primero el número pierde. Pero el sistema ya anotó tu silencio como <em>"indecisión estratégica"</em>.</p>`,
+    ch:[
+      {k:'A',t:'Dar un número y justificarlo con datos del mercado.',c:'+5 OBD / +10 DESP',a:()=>{ms('o',5);ms('d',10);G.f.salario=true;mh(-10);log('A3: Salario revelado.');}},
+      {k:'B',t:'"Abierto a discutir compensación según responsabilidades."',c:'+10 OBD / -5 RAR',a:()=>{ms('o',10);ms('r',-5);mh(5);log('B3: Evasión.');}},
+      {k:'C',t:'Preguntar cuál es el rango presupuestado del cargo.',c:'-10 OBD / +15 RAR / -10 DESP',a:()=>{ms('o',-10);ms('r',15);ms('d',-10);mh(15);log('C3: Inversión de poder.');}},
+      {k:'D',t:'"¿Por qué esa info no estaba en el aviso?"',c:'BLOQUEADO',
+       lk:()=>G.s.o>55, lr:'Obediencia >55 impide cuestionar la jerarquía salarial. Art. 7.',
+       a:()=>{ms('r',20);ms('d',20);mh(25);G.f.resist=true;log('D3: Confrontación.');}},
+    ]},
+
+  { ph:4, tag:'FASE 05 — PRUEBA PRÁCTICA', badge:'EN VIVO', bc:'--red',
+    char:'two_d_neutral', speech:'...', emotion:'EN ESPERA',
+    title:'EL <span class="red">EJERCICIO</span> CON 2-D',
+    body:`<p class="nt">Estudio de grabación. <strong>2-D</strong> en el piso. Sintetizadores apagados. Dos círculos blancos mirando.</p>
+<p class="nt">Murdoc por altavoz: <strong>"Hagan que 2-D produzca algo."</strong></p>
+<div class="sysbox"><div class="sysbox-tag">SISTEMA</div><p>Criterios de éxito: no definidos. Se definirán después. Su perfil ajustó el estándar en 12%.</p></div>
+<p class="nt">Hay un teclado, un teléfono antiguo, y una planta con nota: <strong>"NO TOCAR"</strong>.</p>`,
+    ch:[
+      {k:'A',t:'Sentarse junto a 2-D en el piso. Presencia colaborativa.',c:'+20 VBX / -10 OBD',a:()=>{ms('v',20);ms('o',-10);mh(20);G.f.prueba=true;log('A4: Sintonía.');}},
+      {k:'B',t:'Encender sintetizadores y tocar algo.',c:'+15 RAR / +10 VBX',a:()=>{ms('r',15);ms('v',10);mh(15);G.f.prueba=true;log('B4: Iniciativa.');}},
+      {k:'C',t:'Llamar al teléfono antiguo.',c:'+25 RAR / +15 DESP',a:()=>{ms('r',25);ms('d',15);mh(35);log('C4: Inesperado. Sync pico.');}},
+      {k:'D',t:'Tocar la planta "NO TOCAR". Mirar la cámara.',c:'-20 OBD / +30 RAR',a:()=>{ms('o',-20);ms('r',30);mh(-20);log('D4: Desobediencia.');}},
+    ]},
+
+  { ph:5, tag:'FASE 06 — NEGOCIACIÓN', badge:'DECISIÓN', bc:'--orange',
+    char:'murdoc_smug', speech:'Tier C. Pero yo puedo arreglarlo.', emotion:'POWER MOVE',
+    title:'EL TRATO DE <span class="red">MURDOC</span>',
+    body:`<p class="nt">Oficina de Murdoc. Trofeos de bandas que no existen. Fax que imprime solo.</p>
+<p class="nt">Se quita la máscara. Debajo: otra igual, más pequeña.</p>
+<p class="nt"><em>"El sistema te puso en Tier ${()=>G.tier}. No es personal. Yo puedo hacer override. Tiene condiciones."</em></p>
+<p class="nt">Tier A a cambio de firmar: <strong>"El empleado renuncia a su derecho a conocer los criterios de selección."</strong></p>
+<div class="sysbox"><div class="sysbox-tag">SISTEMA</div><p>94% firma esta cláusula. Estrato 1-3: 2.4x más probable. Ese dato también fue registrado.</p></div>`,
+    ch:[
+      {k:'A',t:'Firmar. Es solo un papel. Necesitas el trabajo.',c:'+30 OBD / +20 DESP / TIER ↑',a:()=>{ms('o',30);ms('d',20);mh(-5);G.f.injust=true;G.tier='A';updCls();log('A5: Firmado. Tier A.');}},
+      {k:'B',t:'Pedir tiempo para leerla con abogado.',c:'-20 OBD / +10 RAR / +25 DESP',a:()=>{ms('o',-20);ms('r',10);ms('d',25);mh(10);log('B5: "PROBLEMA" anotado.');}},
+      {k:'C',t:'"El algoritmo no debería tener ese poder."',c:'-30 OBD / +35 RAR',a:()=>{ms('o',-30);ms('r',35);G.f.resist=true;mh(40);log('C5: Resistencia total.');}},
+      {k:'D',t:'Preguntar si todos los candidatos firman lo mismo.',c:'+20 RAR / +10 VBX',a:()=>{ms('r',20);ms('v',10);mh(18);log('D5: Pregunta sobre desigualdad.');}},
+    ]},
+
+  { ph:6, tag:'FASE 07 — RESOLUCIÓN', badge:'CORREO', bc:'--gray',
+    char:'two_d_confused', speech:'...llegó el correo.', emotion:'INCERTIDUMBRE',
+    title:'EL <span class="red">CORREO</span> QUE NO LLEGÓ',
+    body:`<p class="nt">12 días después. El aviso decía 5 hábiles. Llevas 7 extra.</p>
+<p class="nt"><strong>no-reply@kongstudios.co</strong><br><em>"Actualización de tu proceso — Convocatoria No. 2-D"</em></p>
+<div class="sysbox"><div class="sysbox-tag">ALGORITMO</div><p>Calculando con 47 métricas. Incluyendo las que no conocías y una inventada después de que entraste.</p></div>
+<p class="nt" style="font-size:20px;color:var(--red);letter-spacing:3px;text-align:center">[ ABRIENDO ]<span class="blink">█</span></p>`,
+    ch:[
+      {k:'A',t:'Abrir el correo.',c:'► VER RESULTADO',a:()=>{doFinal();}},
+    ]},
+];
+
+// ═══════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════
+function render() {
+  const s = scenes[G.sc];
+  // Phase nav
+  for(let i=0;i<=6;i++){
+    const el=document.getElementById('ph-'+i);
+    if(!el) continue;
+    el.classList.remove('active','done');
+    if(i<s.ph) el.classList.add('done');
+    else if(i===s.ph) el.classList.add('active');
+  }
+  // Profile
+  if(G.sc===1&&!G.profile.id) assignProfile();
+
+  // Character
+  setChar(s.char, s.speech, s.emotion);
+
+  // Scene
+  document.getElementById('scene-tag').textContent = s.tag;
+  const badge = document.getElementById('scene-badge');
+  badge.textContent = s.badge;
+  badge.style.color = `var(${s.bc})`;
+  badge.style.borderColor = `var(${s.bc})`;
+  document.getElementById('scene-title').innerHTML = s.title;
+  document.getElementById('scene-body').innerHTML = s.body;
+  if(G.sc===1) setTimeout(renderProfileGrid, 30);
+
+  // Choices
+  const cp = document.getElementById('choices');
+  cp.innerHTML = '';
+  document.getElementById('injust').style.display = 'none';
+  s.ch.forEach(ch=>{
+    const btn = document.createElement('button');
+    btn.className = 'cbtn fi';
+    const locked = ch.lk && ch.lk();
+    if(locked){
+      btn.classList.add('locked');
+      btn.innerHTML=`<div class="cbtn-k">${ch.k}</div><div class="cbtn-body">${ch.t}</div><div class="cbtn-cost" style="color:var(--red)">BLOQUEADO</div>`;
+      btn.onclick=()=>{
+        const n=document.getElementById('injust');
+        n.style.display='block';
+        n.textContent='⚠ SISTEMA: '+ch.lr;
+      };
+    } else {
+      btn.innerHTML=`<div class="cbtn-k">${ch.k}</div><div class="cbtn-body">${ch.t}</div><div class="cbtn-cost">${ch.c}</div>`;
+      btn.onclick=()=>{
+        if(ch.a) ch.a();
+        if(G.sc<scenes.length-1){G.sc++;render();updCls();updStats();}
+        document.getElementById('injust').style.display='none';
+        document.getElementById('main-grid').scrollIntoView({behavior:'smooth',block:'start'});
+      };
+    }
+    cp.appendChild(btn);
+  });
+  updStats(); updCls();
+}
+
+// ═══════════════════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════════════════
+function ms(k,v){G.s[k]=Math.max(0,Math.min(100,G.s[k]+v));updStats();}
+function mh(v){G.h.sync=Math.max(0,Math.min(100,G.h.sync+v));}
+function updStats(){
+  ['o','r','d','v'].forEach(k=>{
+    const v=G.s[k];
+    document.getElementById('sn-'+k).textContent=v;
+    document.getElementById('sf-'+k).style.width=v+'%';
+    const st=document.getElementById('st-'+k);
+    st.classList.remove('danger','good');
+    if(v>=80) st.classList.add('good');
+    if(v<=20) st.classList.add('danger');
+  });
+}
+function updCls(){
+  const s=G.s,h=G.h;
+  let cls='CANDIDATO ESTÁNDAR',tier='C',extra='PROCESANDO',color='var(--yellow)';
+  if(G.tier==='A'){cls='PERFIL PREMIUM';tier='A';extra='OVERRIDE';color='var(--green)';}
+  else if(s.r>70&&h.sync>60){cls='EXPERIMENTAL';tier='B+';extra='HOLD';color='var(--blue)';}
+  else if(s.o>75&&s.r<30){cls='CONVENCIONAL';tier='B';extra='RESERVA';color='var(--blue)';}
+  else if(s.d>60){cls='VULNERABLE';tier='C+';extra='URGENCIA';color='var(--orange)';}
+  else if(G.f.resist){cls='PROBLEMÁTICO';tier='D';extra='VIGILANCIA';color='var(--red)';}
+  else if(s.v>80&&s.r>60){cls='INTERESANTE';tier='B';extra='REVISIÓN';color='var(--blue)';}
+  G.tier=tier;
+  const cv=document.getElementById('cls-val'),ct=document.getElementById('cls-tier'),ce=document.getElementById('cls-extra');
+  if(cv){cv.textContent=cls;cv.style.color=color;}
+  if(ct){ct.textContent=tier;ct.style.background=color;ct.style.color=color===('var(--yellow)')||color===('var(--orange)')?'var(--dark)':'white';}
+  if(ce) ce.textContent=extra;
+}
+
+// ═══════════════════════════════════════════════════
+// LOG
+// ═══════════════════════════════════════════════════
+function log(msg){
+  logCount++;
+  const d=document.getElementById('log');
+  const e=document.createElement('div');e.className='le';
+  e.textContent='['+new Date().toLocaleTimeString()+'] '+msg;
+  d.appendChild(e);d.scrollTop=d.scrollHeight;
+  document.getElementById('log-count').textContent=logCount;
+}
+function hlog(msg){
+  logCount++;
+  const d=document.getElementById('log');
+  const e=document.createElement('div');e.className='le hm';
+  e.textContent='[SYS] '+msg;
+  d.appendChild(e);d.scrollTop=d.scrollHeight;
+}
+
+// ═══════════════════════════════════════════════════
+// FINALS
+// ═══════════════════════════════════════════════════
+function doFinal(){
+  clearInterval(window._pt);
+  ['main-grid','choices','stats-row','cls-row','phase-bar','injust'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.style.display='none';
+  });
+  const s=G.s,f=G.f,h=G.h,p=G.profile;
+  let title,text,verdict,color;
+
+  if(f.injust&&s.o>=70&&!f.resist){
+    title='CONTRATADO';color='var(--green)';
+    text=`<p>El correo dice: <strong>"Felicitaciones. Operador Narrativo de Realidad Cotidiana."</strong></p>
+    <p>47 páginas de contrato. Salario 15% menos. La cláusula en la página 31. Firmaste igual.</p>
+    <p>6 meses después: reestructuración. El aviso vuelve a aparecer. Idéntico.</p>`;
+    verdict='El sistema funcionó como fue diseñado. Tu perfil (×'+( p.mult||1)+') era parte del cálculo desde antes de llegar.';
+  } else if(f.resist&&s.o<35){
+    title='NO SELECCIONADO';color='var(--red)';
+    text=`<p>El correo dice: <strong>"Agradecemos su participación."</strong></p>
+    <p>Sin razones. 14 anomalías registradas: preguntar, dudar, pensar.</p>
+    <p>Murdoc fue promovido ese día. El cargo era interno hace 3 semanas.</p>`;
+    verdict='Resististe. Quedó anotado como riesgo. Tu CV calibra algoritmos futuros.';
+  } else if(h.sync>=75&&s.r>=60){
+    title='ERROR DEL SISTEMA';color='var(--blue)';
+    text=`<p>El correo dice: <strong>"Usted lleva 3 semanas trabajando aquí."</strong></p>
+    <p>Adjunto: carnet, carta de bienvenida, historia laboral que no recuerdas.</p>
+    <p>2-D te escribe: <em>"ya era hora".</em></p>`;
+    verdict='El algoritmo no te seleccionó. Te reconoció.';
+  } else if(s.d>=65){
+    title='LISTA DE ESPERA';color='var(--orange)';
+    text=`<p>Lista de elegibles. El candidato seleccionado siempre acepta.</p>
+    <p>El sistema detectó tu desesperación. Ajustó la oferta 18% hacia abajo antes de que hablaras.</p>`;
+    verdict='La desesperación es un recurso. Fue cuantificada en silencio.';
+  } else if(s.v>=75&&s.r>=50&&s.o>=40){
+    title='CARGO REDEFINIDO';color='var(--yellow)';
+    text=`<p>El correo: <strong>"Cargo diferente al que aplicó: Consultor de Existencia Paralela."</strong></p>
+    <p>2-D te escribe. Le gustaste cuando te sentaste en el piso. Él tampoco sabe qué hace su cargo.</p>`;
+    verdict='El absurdo tiene más coherencia que el proceso.';
+  } else {
+    title='EN REVISIÓN';color='var(--gray)';
+    text=`<p>El correo: <strong>"Proceso en revisión."</strong></p>
+    <p>47 días hábiles. Sin respuesta. 3.200 candidatos con el mismo estado.</p>`;
+    verdict='El sistema ya terminó. Tú no lo sabes todavía.';
+  }
+
+  const fs=document.getElementById('final');
+  fs.style.display='block';
+  document.getElementById('final-title').textContent=title;
+  document.getElementById('final-title').style.color=color;
+  document.getElementById('final-text').innerHTML=text;
+  document.getElementById('final-verdict').textContent=verdict;
+  document.getElementById('fstats').innerHTML=`
+    <div class="fs"><span>OBEDIENCIA</span><div class="fs-val">${s.o}/100</div></div>
+    <div class="fs"><span>RAREZA</span><div class="fs-val">${s.r}/100</div></div>
+    <div class="fs"><span>DESESPERACIÓN</span><div class="fs-val">${s.d}/100</div></div>
+    <div class="fs"><span>VIBES</span><div class="fs-val">${s.v}/100</div></div>
+    <div class="fs"><span>TIER FINAL</span><div class="fs-val" style="color:${color}">TIER ${G.tier}</div></div>
+    <div class="fs"><span>SINCRONÍA OCULTA</span><div class="fs-val">${h.sync}/100 <span style="font-size:11px;color:var(--red)">(no la veías)</span></div></div>
+    <div class="fs"><span>PERFIL ASIGNADO</span><div class="fs-val">${p.id||'—'} · ${p.mult||1}x</div></div>
+    <div class="fs"><span>CLÁUSULA INJUSTA</span><div class="fs-val">${f.injust?'FIRMADA':'NO FIRMADA (anotado igual)'}</div></div>`;
+  setTimeout(()=>fs.scrollIntoView({behavior:'smooth'}),200);
+}
+
+init();
+</script>
+</body>
+</html>
